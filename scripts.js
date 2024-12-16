@@ -1,12 +1,76 @@
 document.getElementById("searchBoxBtn").addEventListener("click", (e1) => {
   e1.preventDefault();
   console.log(document.getElementById("searchBox").value);
-//   totalFound
-  fetch(`https://www.themealdb.com/api/json/v1/1/search.php?f=${document.getElementById("searchBox").value}`)
-  .then(data=>data.json())
-  .then(data=>{
-    
-  }).catch(er=>console.log(er))
+  const parent = document.getElementById("searchContainer");
+  parent.innerHTML = ``;
+  //   totalFound
+  fetch(
+    `https://www.themealdb.com/api/json/v1/1/search.php?f=${
+      document.getElementById("searchBox").value
+    }`
+  )
+    .then((data) => data.json())
+    .then((data) => {
+      if (data["meals"] === "no data found")
+        document.getElementById("totalFound").innerText = `Total 0 Found`;
+      else {
+        document.getElementById(
+          "totalFound"
+        ).innerText = `Total ${data["meals"].length} Found`;
+        data["meals"].forEach((element) => {
+          const div = document.createElement("div");
+          if (element.strTags === null) element.strTags = "Baking, Tart, Meat";
+          div.innerHTML = `
+                <div class="img-center">
+                <img
+                  src="${element["strMealThumb"]}"
+                  alt=""
+                  style="width:100%;height:250px"
+                />
+              </div>
+              <h1 style="text-align: center;width:100%">${element.strMeal.substring(
+                0,
+                16
+              )}</h1>
+              <h3 style="width: 100%;
+            text-wrap: wrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            text-align: center;">
+                ${element.strTags}
+              </h3>
+              <div class="btns">
+                <button class="btn" id="add-to-group-btn-${
+                  element.idMeal
+                }">Add to group</button>
+                <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#exampleModal" onclick="details(${
+                  element.idMeal
+                })">
+                Details</button>
+                <div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+                <div class="modal-dialog">
+                <div class="modal-content">
+                <div class="modal-header">
+                <h1 class="modal-title fs-5" id="exampleModalLabel"></h1>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                <h3></h3>
+                </div>
+                <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                </div>
+               </div>
+               </div>
+               </div>
+               </div>
+                `;
+          div.classList.add("items");
+          parent.appendChild(div);
+        });
+      }
+    })
+    .catch((er) => console.log(er));
 });
 
 const loadData = () => {
@@ -75,7 +139,7 @@ const details = (id) => {
   fetch(`https://www.themealdb.com/api/json/v1/1/lookup.php?i=${id}`)
     .then((data) => data.json())
     .then((data) => {
-      data['meals'].forEach((el) => {
+      data["meals"].forEach((el) => {
         const parent = document.getElementById("exampleModal");
         parent.innerHTML = `
         <div class="modal-dialog">
@@ -108,5 +172,3 @@ const details = (id) => {
     })
     .catch((er) => console.log("something went wrong"));
 };
-
-
