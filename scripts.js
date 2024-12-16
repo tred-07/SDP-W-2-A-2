@@ -40,12 +40,11 @@ document.getElementById("searchBoxBtn").addEventListener("click", (e1) => {
                 ${element.strTags}
               </h3>
               <div class="btns">
-                <button class="btn" id="add-to-group-btn-${
-                  element.idMeal
-                }">Add to group</button>
-                <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#exampleModal" onclick="details(${
-                  element.idMeal
-                })">
+                <button class="btn btn-primary" id="addToGroupBtnId-${element.idMeal}" onclick="addToGroup(${
+              element.idMeal
+            })">Add to group</button>
+                <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#exampleModal" 
+                onclick="details(${element.idMeal})">
                 Details</button>
                 <div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
                 <div class="modal-dialog">
@@ -101,9 +100,9 @@ const loadData = () => {
             ${element.strTags}
           </h3>
           <div class="btns">
-            <button class="btn" id="add-to-group-btn-${
+            <button class="btn btn-primary" id="addToGroupBtnId-${element.idMeal}" onclick="addToGroup(${
               element.idMeal
-            }">Add to group</button>
+            })">Add to group</button>
             <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#exampleModal" onclick="details(${
               element.idMeal
             })">
@@ -136,11 +135,13 @@ const loadData = () => {
 loadData();
 
 const details = (id) => {
+  console.log(id)
   fetch(`https://www.themealdb.com/api/json/v1/1/lookup.php?i=${id}`)
     .then((data) => data.json())
     .then((data) => {
-      data["meals"].forEach((el) => {
+      data['meals'].forEach((el) => {
         const parent = document.getElementById("exampleModal");
+        if (el.strTags === null) el.strTags = "Baking, Tart, Meat";
         parent.innerHTML = `
         <div class="modal-dialog">
             <div class="modal-content">
@@ -170,5 +171,60 @@ const details = (id) => {
         `;
       });
     })
-    .catch((er) => console.log("something went wrong"));
+    .catch((er) => console.log(er));
+};
+
+let totalGroupElCount=0
+
+const addToGroup = (id) => {
+  console.log(`https://www.themealdb.com/api/json/v1/1/lookup.php?i=${id}`)
+  fetch(`https://www.themealdb.com/api/json/v1/1/lookup.php?i=${id}`)
+    .then((data) => data.json())
+    .then((data) => {
+      totalGroupElCount++;
+      document.getElementById("totalGroupEl").innerText=`Total ${totalGroupElCount}`
+      data['meals'].forEach(element=>{
+      const parent=document.getElementById("groupContainer")
+      const div=document.createElement("div")
+        console.log(element['strMeal'])
+        if (element.strTags === null) element.strTags = "Baking, Tart, Meat";
+        div.innerHTML=`
+        <div class="img-center">
+                <img
+                  src="${element["strMealThumb"]}"
+                  alt=""
+                  style="width:100%;height:250px"
+                />
+              </div>
+              <h1 style="text-align: center;width:100%">${element.strMeal.substring(
+                0,
+                16
+              )}</h1>
+              <h3 style="width: 100%;
+            text-wrap: wrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            text-align: center;">
+                ${element.strTags}
+            </h3>
+            <h3 style="width: 100%;
+            text-wrap: wrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            text-align: center;"><strong>Category:</strong> ${element.strCategory}</h3>
+            <h3 style="width: 100%;
+            text-wrap: wrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            text-align: center;"><strong>Origin: </strong> ${element.strArea}</h3>
+        `
+        const btn=document.getElementById(`addToGroupBtnId-${element.idMeal}`)
+        btn.classList.add("btn-danger")
+        btn.classList.remove("btn-primary")
+        btn.setAttribute('disabled', '');
+        btn.innerText="Added to group"
+        parent.appendChild(div)
+      })
+    })
+    .catch((er) => console.log(er));
 };
