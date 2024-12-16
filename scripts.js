@@ -181,7 +181,8 @@ const addToGroup = (id) => {
   fetch(`https://www.themealdb.com/api/json/v1/1/lookup.php?i=${id}`)
     .then((data) => data.json())
     .then((data) => {
-      totalGroupElCount++;
+      if(totalGroupElCount<10){
+        totalGroupElCount++;
       document.getElementById("totalGroupEl").innerText=`Total ${totalGroupElCount}`
       data['meals'].forEach(element=>{
       const parent=document.getElementById("groupContainer")
@@ -225,6 +226,8 @@ const addToGroup = (id) => {
         btn.innerText="Added to group"
         parent.appendChild(div)
       })
+      }
+      else alert("Maximum number selected.")
     })
     .catch((er) => console.log(er));
 };
